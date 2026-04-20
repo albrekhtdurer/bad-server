@@ -28,7 +28,7 @@ app.use(json())
 
 app.options('*', cors())
 app.use(routes)
-app.get('/csrf-token', csrfProtection, (req, res) => {
+app.get('/auth/csrf-token', csrfProtection, (req, res) => {
     res.send(req.csrfToken());
 })
 app.use(errors())
