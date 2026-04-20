@@ -13,6 +13,10 @@
   },
   "author": "< Укажите здесь автора работы >",
   "license": "ISC",
+  "overrides": {
+    "cookie": "0.7.2",
+    "lodash": "4.18.1"
+  },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
     "@types/cookie-parser": "^1.4.7",

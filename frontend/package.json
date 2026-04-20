@@ -12,6 +12,9 @@
     "preview": "vite preview",
     "format": "prettier ./src --write"
   },
+  "overrides": {
+    "esbuild": "0.25.2"
+  },
   "dependencies": {
     "@mona-health/react-input-mask": "^3.0.3",
     "@reduxjs/toolkit": "^2.2.5",
