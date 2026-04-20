@@ -22,7 +22,7 @@ app.use(cors())
 
 const limiter = rateLimit({
     windowMs: 60*1000,
-    limit: 10,
+    limit: 20,
 })
 app.use(limiter)
 
