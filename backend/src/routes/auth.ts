@@ -22,7 +22,7 @@ authRouter.get('/token', refreshAccessToken)
 authRouter.get('/logout', logout)
 authRouter.post('/register', register)
 authRouter.get('/csrf-token', csrfProtection, (req, res) => {
-    res.send(req.csrfToken());
+    res.send({csrfToken: req.csrfToken()});
 })
 
 export default authRouter
