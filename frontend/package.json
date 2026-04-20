@@ -12,9 +12,6 @@
     "preview": "vite preview",
     "format": "prettier ./src --write"
   },
-  "overrides": {
-    "esbuild": "0.25.2"
-  },
   "dependencies": {
     "@mona-health/react-input-mask": "^3.0.3",
     "@reduxjs/toolkit": "^2.2.5",
@@ -45,7 +42,7 @@
     "eslint-config-prettier": "^9.1.0",
     "sass": "^1.77.2",
     "typescript": "^5.2.2",
-    "vite": "^5.2.0",
+    "vite": "^6.4.2",
     "prettier": "^3.3.3",
     "vite-tsconfig-paths": "^4.3.2"
   }
