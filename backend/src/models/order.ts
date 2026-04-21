@@ -1,6 +1,6 @@
 /* eslint-disable prefer-arrow-callback */
 import mongoose, { Document, Schema, Types } from 'mongoose'
-import validator from 'validator'
+import validator, { escape, trim }  from 'validator'
 import { PaymentType, phoneRegExp } from '../middlewares/validations'
 import Counter from './counter'
 import User from './user'
@@ -55,6 +55,7 @@ const orderSchema: Schema = new Schema(
                 validator: (v: string) => validator.isEmail(v),
                 message: 'Поле "email" должно быть валидным email-адресом',
             },
+            set: (v: string) => validator.normalizeEmail(v)
         },
         phone: {
             type: String,
@@ -63,10 +64,12 @@ const orderSchema: Schema = new Schema(
                 validator: (v: string) => phoneRegExp.test(v),
                 message: 'Поле "phone" должно быть валидным телефоном.',
             },
+            set: (v: string) => escape(trim(v))
         },
         comment: {
             type: String,
             default: '',
+            set: (v: string) => escape(trim(v))
         },
     },
     { versionKey: false, timestamps: true }

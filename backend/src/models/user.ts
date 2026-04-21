@@ -2,7 +2,7 @@
 import crypto from 'crypto'
 import jwt from 'jsonwebtoken'
 import mongoose, { Document, HydratedDocument, Model, Types } from 'mongoose'
-import validator from 'validator'
+import validator, { escape, trim } from 'validator'
 import md5 from 'md5'
 
 import { ACCESS_TOKEN, REFRESH_TOKEN } from '../config'
@@ -48,6 +48,7 @@ const userSchema = new mongoose.Schema<IUser, IUserModel, IUserMethods>(
             default: 'Евлампий',
             minlength: [2, 'Минимальная длина поля "name" - 2'],
             maxlength: [30, 'Максимальная длина поля "name" - 30'],
+            set: (v: string) => escape(trim(v))
         },
         // в схеме пользователя есть обязательные email и password
         email: {
@@ -59,6 +60,7 @@ const userSchema = new mongoose.Schema<IUser, IUserModel, IUserMethods>(
                 validator: (v: string) => validator.isEmail(v),
                 message: 'Поле "email" должно быть валидным email-адресом',
             },
+            set: (v: string) => validator.normalizeEmail(v)
         },
         // поле password не имеет ограничения на длину, т.к. пароль хранится в виде хэша
         password: {
