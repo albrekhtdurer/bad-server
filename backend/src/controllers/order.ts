@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express'
-import { FilterQuery, Error as MongooseError, Types } from 'mongoose'
+import { FilterQuery, Error as MongooseError, Types, sanitizeFilter } from 'mongoose'
 import BadRequestError from '../errors/bad-request-error'
 import NotFoundError from '../errors/not-found-error'
 import Order, { IOrder } from '../models/order'
@@ -26,7 +26,7 @@ export const getOrders = async (
             orderDateFrom,
             orderDateTo,
             search,
-        } = req.query
+        } = sanitizeFilter(req.query)
 
         const queryLimit = Math.min(10, Math.max(1, Number(limit) || 10))
 
@@ -158,7 +158,7 @@ export const getOrdersCurrentUser = async (
 ) => {
     try {
         const userId = res.locals.user._id
-        const { search, page = 1, limit = 5 } = req.query
+        const { search, page = 1, limit = 5 } = sanitizeFilter(req.query)
         const queryLimit = Math.min(5, Math.max(1, Number(limit) || 5))
         const options = {
             skip: (Number(page) - 1) * queryLimit,
@@ -233,8 +233,9 @@ export const getOrderByNumber = async (
     next: NextFunction
 ) => {
     try {
+        const params = sanitizeFilter(req.params);
         const order = await Order.findOne({
-            orderNumber: req.params.orderNumber,
+            orderNumber: sanitizeFilter(params.orderNumber),
         })
             .populate(['customer', 'products'])
             .orFail(
@@ -259,8 +260,9 @@ export const getOrderCurrentUserByNumber = async (
 ) => {
     const userId = res.locals.user._id
     try {
+        const params = sanitizeFilter(req.params);
         const order = await Order.findOne({
-            orderNumber: req.params.orderNumber,
+            orderNumber: params.orderNumber,
         })
             .populate(['customer', 'products'])
             .orFail(
@@ -295,7 +297,7 @@ export const createOrder = async (
         const products = await Product.find<IProduct>({})
         const userId = res.locals.user._id
         const { address, payment, phone, total, email, items, comment } =
-            req.body
+            sanitizeFilter(req.body)
 
         items.forEach((id: Types.ObjectId) => {
             const product = products.find((p) => p._id.equals(id))
@@ -341,7 +343,7 @@ export const updateOrder = async (
     next: NextFunction
 ) => {
     try {
-        const { status } = req.body
+        const { status } = sanitizeFilter(req.body)
         const updatedOrder = await Order.findOneAndUpdate(
             { orderNumber: req.params.orderNumber },
             { status },

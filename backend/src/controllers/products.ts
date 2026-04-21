@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express'
 import { constants } from 'http2'
-import { Error as MongooseError } from 'mongoose'
+import { Error as MongooseError, sanitizeFilter } from 'mongoose'
 import { join } from 'path'
 import BadRequestError from '../errors/bad-request-error'
 import ConflictError from '../errors/conflict-error'
@@ -11,7 +11,7 @@ import movingFile from '../utils/movingFile'
 // GET /product
 const getProducts = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { page = 1, limit = 5 } = req.query
+        const { page = 1, limit = 5 } = sanitizeFilter(req.query)
         const queryLimit = Math.min(5, Math.max(1, Number(limit) || 5))
         const options = {
             skip: (Number(page) - 1) * queryLimit,
@@ -41,7 +41,7 @@ const createProduct = async (
     next: NextFunction
 ) => {
     try {
-        const { description, category, price, title, image } = req.body
+        const { description, category, price, title, image } = sanitizeFilter(req.body)
 
         // Переносим картинку из временной папки
         if (image) {
@@ -81,9 +81,9 @@ const updateProduct = async (
     next: NextFunction
 ) => {
     try {
-        const { productId } = req.params
-        const { image } = req.body
-
+        const { productId } = sanitizeFilter(req.params)
+        const { image } = sanitizeFilter(req.body)
+        const body = sanitizeFilter(req.body)
         // Переносим картинку из временной папки
         if (image) {
             movingFile(
@@ -97,9 +97,9 @@ const updateProduct = async (
             productId,
             {
                 $set: {
-                    ...req.body,
-                    price: req.body.price ? req.body.price : null,
-                    image: req.body.image ? req.body.image : undefined,
+                    ...body,
+                    price: body.price ? body.price : null,
+                    image: body.image ? body.image : undefined,
                 },
             },
             { runValidators: true, new: true }
@@ -129,7 +129,7 @@ const deleteProduct = async (
     next: NextFunction
 ) => {
     try {
-        const { productId } = req.params
+        const { productId } = sanitizeFilter(req.params)
         const product = await Product.findByIdAndDelete(productId).orFail(
             () => new NotFoundError('Нет товара по заданному id')
         )
