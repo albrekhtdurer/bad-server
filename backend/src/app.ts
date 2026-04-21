@@ -21,7 +21,7 @@ app.use(cors({ origin: ORIGIN_ALLOW, credentials: true }));
 
 const limiter = rateLimit({
     windowMs: 60*1000,
-    limit: 30,
+    limit: 42,
 })
 app.use(limiter)
 
