@@ -3,7 +3,6 @@ import multer, { FileFilterCallback } from 'multer'
 import { mkdirSync } from 'fs'
 import { join, extname } from 'path'
 import md5 from 'md5'
-import { fileTypeFromBuffer } from 'file-type'
 
 type DestinationCallback = (error: Error | null, destination: string) => void
 type FileNameCallback = (error: Error | null, filename: string) => void
@@ -50,9 +49,7 @@ const fileFilter = async (
     file: Express.Multer.File,
     cb: FileFilterCallback
 ) => {
-    const type = await fileTypeFromBuffer(file.buffer)
-
-    if (!type || !types.includes(file.mimetype)) {
+    if (!types.includes(file.mimetype)) {
         return cb(null, false)
     }
 
