@@ -1,7 +1,9 @@
 import { Request, Express } from 'express'
 import multer, { FileFilterCallback } from 'multer'
 import { mkdirSync } from 'fs'
-import { join } from 'path'
+import { join, extname } from 'path'
+import md5 from 'md5'
+import { fileTypeFromBuffer } from 'file-type'
 
 type DestinationCallback = (error: Error | null, destination: string) => void
 type FileNameCallback = (error: Error | null, filename: string) => void
@@ -29,7 +31,7 @@ const storage = multer.diskStorage({
         file: Express.Multer.File,
         cb: FileNameCallback
     ) => {
-        cb(null, file.originalname)
+        cb(null, new Date().toISOString() + md5(file.originalname) + extname(file.originalname))
     },
 })
 
@@ -41,12 +43,18 @@ const types = [
     'image/svg+xml',
 ]
 
-const fileFilter = (
+const fileFilter = async (
     _req: Request,
     file: Express.Multer.File,
     cb: FileFilterCallback
 ) => {
-    if (!types.includes(file.mimetype)) {
+    const type = await fileTypeFromBuffer(file.buffer)
+
+    if (!type || !types.includes(file.mimetype)) {
+        return cb(null, false)
+    }
+
+    if (file.size < 2048) {
         return cb(null, false)
     }
 
