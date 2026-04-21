@@ -1,5 +1,7 @@
 import { NextFunction, Request, Response } from 'express'
 import { constants } from 'http2'
+import fs from 'fs';
+import { fileTypeFromBuffer } from 'file-type'
 import BadRequestError from '../errors/bad-request-error'
 
 export const uploadFile = async (
@@ -9,6 +11,16 @@ export const uploadFile = async (
 ) => {
     if (!req.file) {
         return next(new BadRequestError('Файл не загружен'))
+    }
+    const data = await fs.readFileSync(req.file.path);
+    const type = await fileTypeFromBuffer(data)
+    if (!type) {
+        return next(new BadRequestError('неправильный тип файла'))
+    }
+
+    if (req.file.size < 2048) {
+        fs.unlink(req.file.path, () => {})
+        return next(new BadRequestError('Файл слишком маленький'))
     }
     try {
         const fileName = process.env.UPLOAD_PATH

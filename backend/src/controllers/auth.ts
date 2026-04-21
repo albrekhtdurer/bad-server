@@ -2,7 +2,7 @@ import crypto from 'crypto'
 import { NextFunction, Request, Response } from 'express'
 import { constants } from 'http2'
 import jwt, { JwtPayload } from 'jsonwebtoken'
-import { Error as MongooseError } from 'mongoose'
+import { Error as MongooseError, sanitizeFilter } from 'mongoose'
 import { REFRESH_TOKEN } from '../config'
 import BadRequestError from '../errors/bad-request-error'
 import ConflictError from '../errors/conflict-error'
@@ -13,7 +13,7 @@ import User from '../models/user'
 // POST /auth/login
 const login = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { email, password } = req.body
+        const { email, password } = sanitizeFilter(req.body)
         const user = await User.findUserByCredentials(email, password)
         const accessToken = user.generateAccessToken()
         const refreshToken = await user.generateRefreshToken()
@@ -35,7 +35,7 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
 // POST /auth/register
 const register = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { email, password, name } = req.body
+        const { email, password, name } = sanitizeFilter(req.body)
         const newUser = new User({ email, password, name })
         await newUser.save()
         const accessToken = newUser.generateAccessToken()
