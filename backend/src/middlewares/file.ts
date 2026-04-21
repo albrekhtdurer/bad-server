@@ -53,10 +53,6 @@ const fileFilter = async (
         return cb(null, false)
     }
 
-    if (file.size < 2048) {
-        return cb(null, false)
-    }
-
     return cb(null, true)
 }
 

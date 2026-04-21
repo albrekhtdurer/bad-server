@@ -17,6 +17,11 @@ export const uploadFile = async (
     if (!type) {
         return next(new BadRequestError('неправильный тип файла'))
     }
+
+    if (req.file.size < 2048) {
+        fs.unlink(req.file.path, () => {})
+        return next(new BadRequestError('Файл слишком маленький'))
+    }
     try {
         const fileName = process.env.UPLOAD_PATH
             ? `/${process.env.UPLOAD_PATH}/${req.file.filename}`
