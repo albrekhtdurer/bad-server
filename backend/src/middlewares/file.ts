@@ -31,7 +31,9 @@ const storage = multer.diskStorage({
         file: Express.Multer.File,
         cb: FileNameCallback
     ) => {
-        cb(null, new Date().toISOString() + md5(file.originalname) + extname(file.originalname))
+        const stringDate = new Date().toISOString()
+        const newFileName =  stringDate + md5(file.originalname).toString() + extname(file.originalname)
+        cb(null, newFileName.toString())
     },
 })
 
